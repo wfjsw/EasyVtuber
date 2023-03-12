@@ -132,20 +132,20 @@ def launch():
             run_args.append(str(args['cache_simplify']))
         if args['cache_size'] is not None:
             run_args.append('--cache')
-            run_args.append(['0b', '256mb', '1gb', '2gb', '4gb', '8gb'][args['cache_size']])
+            run_args.append(['0b', '512mb', '1gb', '2gb', '4gb', '8gb'][args['cache_size']])
             run_args.append('--gpu_cache')
-            run_args.append(['0b', '128mb', '512mb', '1gb', '2gb', '4gb'][args['cache_size']])
+            run_args.append(['0b', '512mb', '1gb', '2gb', '4gb', '8gb'][args['cache_size']])
         if args['model_type'] is not None:
             run_args.append('--model')
-            model_name = ['standard_float', 'standard_half', 'separable_half'][args['model_type']]
+            model_name = ['standard_float', 'standard_half', 'separable_half', 'standard_bf16'][args['model_type']]
             run_args.append(model_name)
-            if not os.path.exists('data/models/' + model_name + '/face_morpher.pt'):
-                tkinter.messagebox.showinfo('EasyVtuber Launcher',
-                                            'Missing Model File: ' + 'data/models/' + model_name + '\nCheck link 00B or README.md for more info.')
-                return
+            # if not os.path.exists('data/models/' + model_name + '/face_morpher.pt'):
+            #     tkinter.messagebox.showinfo('EasyVtuber Launcher',
+            #                                 'Missing Model File: ' + 'data/models/' + model_name + '\nCheck link 00B or README.md for more info.')
+            #     return
 
         run_args.append('--output_size')
-        run_args.append('512x512')
+        run_args.append('640x640')
         print('Launched: ' + ' '.join(run_args))
         p = subprocess.Popen(run_args)
         launch_btn.config(text='Stop')
@@ -212,9 +212,10 @@ inputChange()
 
 ttk.Label(frameR, text="Model Simplify").pack(fill='x', expand=True)
 model_type = tk.IntVar(value=args['model_type'])
-ttk.Radiobutton(frameR, text='Off', value=0, variable=model_type).pack(fill='x', expand=True)
-ttk.Radiobutton(frameR, text='Low', value=1, variable=model_type).pack(fill='x', expand=True)
-ttk.Radiobutton(frameR, text='High', value=2, variable=model_type).pack(fill='x', expand=True)
+ttk.Radiobutton(frameR, text='Standard FP32', value=0, variable=model_type).pack(fill='x', expand=True)
+ttk.Radiobutton(frameR, text='Standard FP16', value=1, variable=model_type).pack(fill='x', expand=True)
+ttk.Radiobutton(frameR, text='Standard BF16', value=3, variable=model_type).pack(fill='x', expand=True)
+ttk.Radiobutton(frameR, text='Separable FP16', value=2, variable=model_type).pack(fill='x', expand=True)
 
 ttk.Label(frameR, text="Facial Input Simplify").pack(fill='x', expand=True)
 cache_simplify = tk.IntVar(value=args['cache_simplify'])
@@ -229,11 +230,11 @@ ttk.Radiobutton(frameR, text='Gaming', value=8, variable=cache_simplify).pack(fi
 ttk.Label(frameR, text="Cache Size (RAM+VRAM)").pack(fill='x', expand=True)
 cache_size = tk.IntVar(value=args['cache_size'])
 ttk.Radiobutton(frameR, text='Off', value=0, variable=cache_size).pack(fill='x', expand=True)
-ttk.Radiobutton(frameR, text='256M+128M', value=1, variable=cache_size).pack(fill='x', expand=True)
-ttk.Radiobutton(frameR, text='1GB+512M', value=2, variable=cache_size).pack(fill='x', expand=True)
-ttk.Radiobutton(frameR, text='2GB+1GB', value=3, variable=cache_size).pack(fill='x', expand=True)
-ttk.Radiobutton(frameR, text='4GB+2GB', value=4, variable=cache_size).pack(fill='x', expand=True)
-ttk.Radiobutton(frameR, text='8GB+4GB', value=5, variable=cache_size).pack(fill='x', expand=True)
+ttk.Radiobutton(frameR, text='1GB+512MB', value=1, variable=cache_size).pack(fill='x', expand=True)
+ttk.Radiobutton(frameR, text='2GB+1GB', value=2, variable=cache_size).pack(fill='x', expand=True)
+ttk.Radiobutton(frameR, text='4GB+2GB', value=3, variable=cache_size).pack(fill='x', expand=True)
+ttk.Radiobutton(frameR, text='8GB+4GB', value=4, variable=cache_size).pack(fill='x', expand=True)
+ttk.Radiobutton(frameR, text='16GB+8GB', value=5, variable=cache_size).pack(fill='x', expand=True)
 
 ttk.Label(frameL, text="Extra Options").pack(fill='x', expand=True)
 is_eyebrow = tk.BooleanVar(value=args['is_eyebrow'])

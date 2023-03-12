@@ -7,6 +7,7 @@ import tha3.poser.modes.standard_float
 import tha3.poser.modes.separable_float
 import tha3.poser.modes.standard_half
 import tha3.poser.modes.separable_half
+import tha3.poser.modes.standard_bfloat16
 from torch.nn.functional import interpolate
 
 from args import args
@@ -107,6 +108,18 @@ class TalkingAnime3(nn.Module):
             self.two_algo_face_body_rotator = tha3.poser.modes.separable_half.load_two_algo_generator(
                 'data/models/separable_half/two_algo_face_body_rotator.pt')
             self.editor = tha3.poser.modes.separable_half.load_editor('data/models/separable_half/editor.pt')
+        elif args.model == "standard_bf16":
+            if args.eyebrow:
+                self.eyebrow_decomposer = tha3.poser.modes.standard_bfloat16.load_eyebrow_decomposer(
+                    'data/models/standard_bf16/eyebrow_decomposer.safetensors')
+                self.eyebrow_morphing_combiner = tha3.poser.modes.standard_bfloat16.load_eyebrow_morphing_combiner(
+                    'data/models/standard_bf16/eyebrow_morphing_combiner.safetensors')
+
+            self.face_morpher = tha3.poser.modes.standard_bfloat16.load_face_morpher(
+                'data/models/standard_bf16/face_morpher.safetensors')
+            self.two_algo_face_body_rotator = tha3.poser.modes.standard_bfloat16.load_two_algo_generator(
+                'data/models/standard_bf16/two_algo_face_body_rotator.safetensors')
+            self.editor = tha3.poser.modes.standard_bfloat16.load_editor('data/models/standard_bf16/editor.safetensors')
         else:
             raise RuntimeError("Invalid model: '%s'" % args.model)
         self.face_cache = OrderedDict()
@@ -132,7 +145,7 @@ class TalkingAnime3(nn.Module):
                 self.eyebrow_morphing_combiner(eyebrow_morp_image[3], eyebrow_morp_image[0], eyebrow_vector)[2]
                 face_image[:, :, 32:32 + 128, 32:32 + 128] = eyebrow_morp_image
             mouth_eye_morp_image = self.face_morpher(face_image, mouth_eye_vector)[0]
-            self.face_cache[input_hash] = mouth_eye_morp_image.detach()
+            self.face_cache[input_hash] = mouth_eye_morp_image.detach().to('cpu')
             if len(self.face_cache) > args.max_gpu_cache_len:
                 self.face_cache.popitem(last=False)
         else:
